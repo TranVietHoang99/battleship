@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hải Chiến</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='4' y='4' width='92' height='92' rx='20' fill='%230b3a63'/><circle cx='50' cy='50' r='30' fill='none' stroke='%234fd1ff' stroke-width='6'/><path d='M50 12v24M50 64v24M12 50h24M64 50h24' stroke='%234fd1ff' stroke-width='6'/><circle cx='50' cy='50' r='8' fill='%23ff4d5e'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&family=Chakra+Petch:wght@600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{
+  --bg0:#04101d; --bg1:#0a2440; --ink:#e6f1ff; --muted:#8ea8c6; --line:rgba(120,190,255,.18); --line2:rgba(120,190,255,.32);
+  --cyan:#4fd1ff; --cyan-d:#167fb0; --green:#2fd492; --green-d:#16875a; --gold:#ffc24a; --gold-d:#b98410;
+  --red:#ff4d5e; --red-d:#a8233a; --fire:#ff7a2f; --steel:#1f3248;
+  --p0:#4fd1ff; --p1:#ff7b7b;
+  --cs:max(26px,min(40px,calc((100vw - 96px)/10)));
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:"Be Vietnam Pro",system-ui,"Segoe UI",sans-serif;color:var(--ink);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%,rgba(40,120,190,.45) 0,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 110%,rgba(20,90,140,.35) 0,transparent 60%),
+    linear-gradient(#071a2e,#04101d 70%);
+  background-attachment:fixed;overflow-x:hidden;
+}
+button,select{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+h1,h2,h3,.title,.bhead,.chakra{font-family:"Chakra Petch","Be Vietnam Pro",sans-serif}
+
+/* biển trang trí dưới đáy trang */
+#seaDeco{position:fixed;left:0;right:0;bottom:0;height:110px;pointer-events:none;z-index:0;overflow:hidden;opacity:.55}
+#seaDeco svg{position:absolute;bottom:0;width:200%;height:100%;left:0}
+#seaDeco .w1{animation:wave 22s linear infinite}
+#seaDeco .w2{animation:wave 14s linear infinite reverse;opacity:.7}
+@keyframes wave{to{transform:translateX(-50%)}}
+#lobby,#game{position:relative;z-index:1}
+
+/* ---------- Lobby ---------- */
+#lobby{min-height:100vh;display:grid;place-items:center;padding:24px 16px 120px}
+.lobby-card{
+  width:100%;max-width:440px;border-radius:28px;padding:22px 22px 24px;text-align:center;
+  background:linear-gradient(180deg,rgba(22,56,94,.82),rgba(9,26,47,.88));
+  border:1px solid var(--line2);box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.hero{position:relative;height:150px;margin:-6px auto 4px;width:100%;max-width:330px}
+.hero .radarC{position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;
+  background:repeating-radial-gradient(circle,transparent 0 18px,rgba(79,209,255,.18) 18px 19px),radial-gradient(circle,rgba(79,209,255,.12),transparent 70%);
+  border:1px solid rgba(79,209,255,.35);overflow:hidden}
+.hero .radarC::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(79,209,255,.25),rgba(79,209,255,.25)) 50% 0/1px 100% no-repeat,linear-gradient(rgba(79,209,255,.25),rgba(79,209,255,.25)) 0 50%/100% 1px no-repeat}
+.hero .radarC::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(47,212,146,0) 0deg,rgba(47,212,146,.0) 280deg,rgba(47,212,146,.45) 358deg,rgba(47,212,146,0) 360deg);animation:spin 4s linear infinite}
+.hero .blip{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red);animation:blip 4s ease-out infinite}
+@keyframes blip{0%,60%{opacity:0}66%{opacity:1}100%{opacity:0}}
+.hero .heroShip{position:absolute;left:50%;bottom:6px;width:260px;height:65px;margin-left:-130px;animation:heroBob 4s ease-in-out infinite;filter:drop-shadow(0 8px 8px rgba(0,0,0,.55))}
+.hero .heroShip svg{width:100%;height:100%}
+@keyframes heroBob{50%{transform:translateY(-3px) rotate(-.6deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{margin:0;padding-top:.18em;font-weight:700;font-size:3rem;line-height:1.15;letter-spacing:3px;
+  background:linear-gradient(180deg,#fff 20%,#8fe3ff 70%,#3aa7e0);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 rgba(0,0,0,.35))}
+.tag{color:var(--muted);margin:4px 0 14px;font-weight:600}
+label{display:block;text-align:left;font-weight:700;font-size:.92rem;margin:12px 0 4px}
+input[type=text],input:not([type]),select{
+  width:100%;font:inherit;font-size:1.02rem;padding:10px 14px;border-radius:12px;
+  border:1px solid var(--line2);background:rgba(3,14,27,.6);color:var(--ink);outline:none;
+}
+select option{background:#0b2238}
+input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(79,209,255,.18)}
+#codeInput{text-transform:uppercase;letter-spacing:4px;text-align:center;font-weight:800}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:14px;
+  padding:10px 16px;font-size:1rem;font-weight:800;color:#04213a;background:var(--cyan);
+  box-shadow:0 4px 0 var(--cyan-d),0 8px 18px rgba(79,209,255,.18);transition:transform .08s,box-shadow .08s,filter .15s;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--cyan-d)}
+.btn.green{background:var(--green);box-shadow:0 4px 0 var(--green-d),0 8px 18px rgba(47,212,146,.18)}
+.btn.green:active{box-shadow:0 1px 0 var(--green-d)}
+.btn.gold{background:var(--gold);box-shadow:0 4px 0 var(--gold-d),0 8px 18px rgba(255,194,74,.18)}
+.btn.gold:active{box-shadow:0 1px 0 var(--gold-d)}
+.btn.red{background:var(--red);color:#fff;box-shadow:0 4px 0 var(--red-d)}
+.btn.red:active{box-shadow:0 1px 0 var(--red-d)}
+.btn.ghost{background:rgba(255,255,255,.06);color:var(--ink);border:1px solid var(--line2);box-shadow:none;padding:6px 12px;font-size:.92rem}
+.btn.ghost:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:default;transform:none;filter:none}
+.row{display:flex;gap:10px;margin-top:14px}
+.row>*{flex:1}
+.or{margin:16px 0 0;color:var(--muted);display:flex;align-items:center;gap:10px;font-size:.9rem}
+.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line2)}
+.msg{min-height:1.4em;margin-top:12px;color:var(--red);font-weight:700}
+details.opts{margin-top:12px;text-align:left;border:1px solid var(--line);border-radius:14px;padding:6px 12px;background:rgba(255,255,255,.03)}
+details.opts summary{cursor:pointer;font-weight:800;padding:4px 0;list-style:none}
+details.opts summary::-webkit-details-marker{display:none}
+details.opts summary::after{content:"▾";float:right;color:var(--muted)}
+details.opts[open] summary::after{content:"▴"}
+.opt{display:flex;align-items:center;gap:8px;font-weight:700;margin:10px 0 4px;cursor:pointer;text-align:left}
+.opt input{width:18px;height:18px;accent-color:var(--cyan)}
+.waiting .code{
+  font-family:"Chakra Petch",monospace;font-size:2.6rem;font-weight:700;letter-spacing:8px;color:var(--cyan);
+  background:rgba(79,209,255,.08);border:2px dashed rgba(79,209,255,.6);border-radius:18px;padding:6px 10px;margin:10px 0;
+}
+.waiting .link{font-size:.85rem;word-break:break-all;color:var(--muted);margin:8px 0}
+.dots:after{content:"";animation:dots 1.4s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+
+/* ---------- Game ---------- */
+#game{max-width:1320px;margin:0 auto;padding:10px 16px 120px}
+header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+header .title{font-size:1.6rem;font-weight:700;letter-spacing:2px;line-height:1;color:#bfeaff}
+header .info{font-weight:700;color:var(--muted);font-size:.92rem}
+header .info b{color:var(--ink)}
+header .sp{flex:1}
+.chip{padding:4px 12px;border-radius:999px;font-weight:800;font-size:.88rem;background:rgba(255,255,255,.07);color:var(--muted);border:1px solid var(--line)}
+.turnChip.me{background:var(--green);color:#042a1a;border-color:transparent;animation:pulse 1.6s ease-in-out infinite}
+.turnChip.them{background:rgba(255,77,94,.18);color:#ffc2c8;border-color:rgba(255,77,94,.4)}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(47,212,146,.18)}}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:16px;align-items:start}
+.panel{
+  background:linear-gradient(180deg,rgba(20,50,84,.72),rgba(8,24,44,.82));border:1px solid var(--line);border-radius:var(--radius);
+  padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+aside .panel+.panel{margin-top:12px}
+.ptitle{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1rem;margin-bottom:8px;flex-wrap:wrap}
+.ptitle .sp{flex:1}
+.small{font-size:.84rem;color:var(--muted);font-weight:600}
+.statusBar{
+  background:rgba(3,14,27,.55);border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:12px;
+  padding:8px 12px;font-weight:700;margin-bottom:12px;min-height:2.4em;display:flex;align-items:center;gap:8px
+}
+.statusBar.sb-hit{border-left-color:var(--fire)}
+.statusBar.sb-miss{border-left-color:#9fc6e8}
+.statusBar.sb-sunk{border-left-color:var(--red);background:rgba(255,77,94,.1)}
+
+/* --- boards --- */
+.boards{display:flex;gap:16px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+.boardPanel{display:flex;flex-direction:column;align-items:center}
+.bhead{display:flex;align-items:center;gap:8px;width:100%;font-weight:700;font-size:1.05rem;letter-spacing:.5px;margin-bottom:8px}
+.bhead .sp{flex:1}
+.bhead .small{font-family:"Be Vietnam Pro",sans-serif}
+.bframe{
+  --c:var(--cs);
+  position:relative;padding:8px 10px 10px 6px;border-radius:16px;
+  background:linear-gradient(145deg,#2c4560,#15263b 60%,#1b2f47);
+  box-shadow:0 14px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.14),inset 0 -2px 0 rgba(0,0,0,.35);
+  transition:box-shadow .3s;
+}
+.bframe::before{content:"";position:absolute;inset:5px;border-radius:12px;pointer-events:none;
+  background:
+    radial-gradient(circle at 6px 6px,#8aa0b8 0 2px,transparent 2.5px),
+    radial-gradient(circle at calc(100% - 6px) 6px,#8aa0b8 0 2px,transparent 2.5px),
+    radial-gradient(circle at 6px calc(100% - 6px),#8aa0b8 0 2px,transparent 2.5px),
+    radial-gradient(circle at calc(100% - 6px) calc(100% - 6px),#8aa0b8 0 2px,transparent 2.5px)}
+.bframe.glowMe{box-shadow:0 0 0 2px rgba(47,212,146,.75),0 0 28px rgba(47,212,146,.35),0 14px 30px rgba(0,0,0,.45)}
+.bframe.glowThem{box-shadow:0 0 0 2px rgba(255,77,94,.65),0 0 28px rgba(255,77,94,.28),0 14px 30px rgba(0,0,0,.45)}
+.bframe.small{--c:calc(var(--cs)*.78)}
+.bframe.big{--c:calc(var(--cs)*1.18)}
+.bgrid{display:grid;grid-template-columns:20px calc(10*var(--c));grid-template-rows:18px calc(10*var(--c))}
+.colLab,.rowLab{display:grid;font-family:"Chakra Petch",monospace;font-weight:700;color:#8fb2d6;font-size:calc(min(13px,var(--c)*.34))}
+.colLab{grid-template-columns:repeat(10,1fr);text-align:center;align-items:end;padding-bottom:2px}
+.rowLab{grid-template-rows:repeat(10,1fr);align-items:center;justify-items:end;padding-right:4px}
+.bstage{position:relative;width:calc(10*var(--c));height:calc(10*var(--c))}
+.board{position:absolute;inset:0;border-radius:8px;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(140,210,255,.35),inset 0 0 26px rgba(0,0,0,.55);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.water{position:absolute;inset:0;
+  background:radial-gradient(ellipse at 25% 15%,rgba(110,220,255,.28),transparent 55%),
+             radial-gradient(ellipse at 80% 90%,rgba(0,30,60,.5),transparent 60%),
+             linear-gradient(160deg,#1270a6,#0b4c80 50%,#073660)}
+.caus{position:absolute;inset:0;opacity:.36;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.018 .045' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .75 0 0 0 0 .93 0 0 0 0 1 2.6 0 0 0 -1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:240px 240px;animation:drift 34s linear infinite}
+.caus.c2{opacity:.2;background-size:330px 330px;animation:drift2 26s linear infinite}
+@keyframes drift{to{background-position:240px 120px}}
+@keyframes drift2{to{background-position:-330px 330px}}
+.enemy .water{background:radial-gradient(ellipse at 25% 15%,rgba(90,230,210,.18),transparent 55%),linear-gradient(160deg,#0c5a78,#083e5e 50%,#052a45)}
+.radar{position:absolute;left:50%;top:50%;width:150%;height:150%;margin:-75% 0 0 -75%;border-radius:50%;pointer-events:none;opacity:.25;transition:opacity .4s;
+  background:conic-gradient(from 0deg,rgba(47,212,146,0) 0deg,rgba(47,212,146,0) 300deg,rgba(47,212,146,.55) 359deg,rgba(47,212,146,0) 360deg);animation:spin 6s linear infinite}
+.radar.on{opacity:.6}
+.gridl{position:absolute;inset:0;
+  background-image:linear-gradient(to right,rgba(170,225,255,.2) 1px,transparent 1px),linear-gradient(to bottom,rgba(170,225,255,.2) 1px,transparent 1px);
+  background-size:var(--c) var(--c)}
+.layer,.cells{position:absolute;inset:0}
+.cells{z-index:6}
+.cell{position:absolute;left:calc(var(--x)*var(--c));top:calc(var(--y)*var(--c));width:var(--c);height:var(--c)}
+.enemy .cell.can{cursor:crosshair}
+.enemy .cell.can:hover{background:rgba(79,209,255,.16);box-shadow:inset 0 0 0 1px rgba(79,209,255,.6)}
+.setupB .cell{cursor:pointer}
+.fxl{position:absolute;inset:0;pointer-events:none;z-index:8}
+
+/* tàu */
+.ship{position:absolute;left:calc(var(--x)*var(--c));top:calc(var(--y)*var(--c));width:calc(var(--l)*var(--c));height:var(--c);
+  transform-origin:calc(var(--c)/2) calc(var(--c)/2);z-index:2}
+.ship.v{transform:rotate(90deg)}
+.ship svg{display:block;width:100%;height:100%;filter:drop-shadow(0 3px 2px rgba(0,0,0,.55));animation:bob 5s ease-in-out infinite}
+.ship.v svg{filter:drop-shadow(3px 0 2px rgba(0,0,0,.55))}
+.ship:nth-child(2n) svg{animation-delay:-2s}
+.ship:nth-child(3n) svg{animation-delay:-3.4s}
+@keyframes bob{50%{transform:translateY(1.5%) scale(1.01)}}
+.ship.sunk svg{filter:grayscale(.75) brightness(.5) sepia(.35) drop-shadow(0 2px 2px rgba(0,0,0,.6));animation:none;opacity:.9}
+.ship.ghostShip svg{opacity:.85;animation:none}
+.ship.ghostShip::after{content:"";position:absolute;inset:4%;border-radius:10px;border:2px dashed rgba(47,212,146,.95);background:rgba(47,212,146,.14)}
+.ship.ghostShip.bad::after{border-color:rgba(255,77,94,.95);background:rgba(255,77,94,.2)}
+.ship.reveal svg{opacity:.75;filter:drop-shadow(0 0 4px rgba(255,77,94,.9))}
+.ship.lift svg{filter:drop-shadow(0 0 6px rgba(255,194,74,.95))}
+</style>
+<style>
+/* dấu bắn */
+.mk{position:absolute;left:calc(var(--x)*var(--c));top:calc(var(--y)*var(--c));width:var(--c);height:var(--c);pointer-events:none;z-index:3}
+.mk.fresh{animation:mkIn .35s .42s both}
+@keyframes mkIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.miss i{position:absolute;inset:37%;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#d6ecff 55%,#86b4dc);
+  box-shadow:0 0 0 2px rgba(255,255,255,.22),0 0 8px rgba(170,225,255,.55)}
+.miss::after{content:"";position:absolute;inset:20%;border-radius:50%;border:1.5px solid rgba(200,235,255,.32)}
+.miss.fresh::after{animation:ripple 1.6s .4s ease-out 3}
+@keyframes ripple{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.6);opacity:0}}
+.hit::before{content:"";position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(40,10,0,.75),rgba(60,20,5,.35) 55%,transparent 72%)}
+.hit .gl{position:absolute;inset:-18%;border-radius:50%;background:radial-gradient(circle,rgba(255,130,40,.55),rgba(255,70,20,.16) 45%,transparent 70%);animation:glow 1.1s ease-in-out infinite alternate}
+@keyframes glow{to{opacity:.55;transform:scale(.9)}}
+.hit .f{position:absolute;left:28%;bottom:22%;width:44%;height:64%;border-radius:50% 50% 45% 45%/65% 65% 35% 35%;
+  background:radial-gradient(ellipse at 50% 78%,#fffbd0 0,#ffd23f 22%,#ff7a1a 52%,rgba(255,50,20,0) 74%);
+  transform-origin:50% 100%;animation:flick .45s ease-in-out infinite alternate;mix-blend-mode:screen}
+.hit .f.b{left:10%;width:34%;height:46%;animation-duration:.38s;animation-delay:-.2s}
+.hit .f.c{left:56%;width:34%;height:50%;animation-duration:.52s;animation-delay:-.1s}
+@keyframes flick{0%{transform:scale(1,1) skewX(-4deg)}100%{transform:scale(.82,1.2) skewX(5deg)}}
+.hit .sm{position:absolute;left:35%;top:18%;width:34%;height:34%;border-radius:50%;
+  background:radial-gradient(circle,rgba(60,62,68,.75),rgba(60,62,68,0) 70%);animation:smoke 2.6s linear infinite}
+.hit .sm.b{animation-delay:-1.3s;left:45%}
+@keyframes smoke{0%{transform:translate(0,0) scale(.5);opacity:0}15%{opacity:.85}100%{transform:translate(40%,-170%) scale(2.1);opacity:0}}
+.hit.dead .f,.hit.dead .gl{opacity:.55}
+.aimMk{position:absolute;left:calc(var(--x)*var(--c));top:calc(var(--y)*var(--c));width:var(--c);height:var(--c);pointer-events:none;z-index:4;--rc:var(--red)}
+.aimMk.hov{--rc:var(--cyan)}
+.aimMk::before{content:"";position:absolute;inset:14%;border-radius:50%;border:2px solid var(--rc);box-shadow:0 0 8px var(--rc),inset 0 0 6px var(--rc);animation:spin 3s linear infinite;
+  background:linear-gradient(var(--rc),var(--rc)) 50% 0/2px 24% no-repeat,linear-gradient(var(--rc),var(--rc)) 50% 100%/2px 24% no-repeat,
+             linear-gradient(var(--rc),var(--rc)) 0 50%/24% 2px no-repeat,linear-gradient(var(--rc),var(--rc)) 100% 50%/24% 2px no-repeat}
+.aimMk::after{content:"";position:absolute;inset:45%;border-radius:50%;background:var(--rc)}
+
+/* hiệu ứng nổ / tóe nước */
+.fx{position:absolute;left:calc(var(--x)*var(--c));top:calc(var(--y)*var(--c));width:var(--c);height:var(--c)}
+.fx i{position:absolute;display:block}
+.fx .shell{left:38%;top:38%;width:24%;height:24%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#666,#111);box-shadow:0 0 8px rgba(255,210,140,.9);animation:shell .38s ease-in both}
+@keyframes shell{0%{transform:translateY(-320%) scale(2.6);opacity:0}25%{opacity:1}94%{opacity:1;transform:translateY(0) scale(.9)}100%{opacity:0;transform:translateY(0) scale(.9)}}
+.fx .flash{inset:-75%;border-radius:50%;background:radial-gradient(circle,#fff 0,#ffe78a 16%,#ff9a2e 36%,rgba(255,70,20,.45) 54%,transparent 68%);animation:flash .6s .36s ease-out both}
+@keyframes flash{0%{transform:scale(.1);opacity:1}55%{opacity:1}100%{transform:scale(1.2);opacity:0}}
+.fx .ring{inset:0;border-radius:50%;border:3px solid rgba(255,225,160,.95);animation:ring .62s .36s ease-out both}
+.fx .ring.w{border-color:rgba(215,245,255,.95)}
+.fx .ring.w2{border-width:2px;animation-delay:.52s}
+@keyframes ring{0%{transform:scale(.2);opacity:1}100%{transform:scale(2.5);opacity:0}}
+.fx .deb{left:45%;top:45%;width:10%;height:10%;border-radius:2px;background:#ffb347;box-shadow:0 0 6px #ff7a1a;animation:deb .85s .36s cubic-bezier(.15,.7,.35,1) both}
+.fx .deb.k{background:#3a3a3a;box-shadow:none}
+@keyframes deb{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(300deg);opacity:0}}
+.fx .drop{left:44%;top:44%;width:12%;height:12%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#9fd8ff);animation:drop .8s .36s cubic-bezier(.2,.6,.5,1) both}
+@keyframes drop{0%{transform:translate(0,0);opacity:1}45%{transform:translate(calc(var(--dx)*.6),calc(var(--h)*-1));opacity:1}100%{transform:translate(var(--dx),30%);opacity:0}}
+.fx .plume{left:32%;width:36%;bottom:50%;height:0;border-radius:50% 50% 20% 20%;background:linear-gradient(to top,rgba(220,245,255,.95),rgba(220,245,255,0));animation:plume .7s .36s ease-out both}
+@keyframes plume{0%{height:0;opacity:1}40%{height:150%;opacity:.95}100%{height:120%;opacity:0}}
+.fx.big .flash{inset:-130%}
+.fx.big .ring{border-width:4px}
+.shake{animation:shake .5s ease-in-out}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-5px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,3px)}80%{transform:translate(3px,-1px)}}
+
+/* bố trí */
+.setupGrid{display:grid;grid-template-columns:auto minmax(0,320px);gap:16px;justify-content:center;align-items:start}
+.dock{display:flex;flex-direction:column;gap:8px}
+.dk{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);text-align:left;font-weight:700;transition:.15s}
+.dk:hover{background:rgba(79,209,255,.08)}
+.dk .mini{flex:none;height:22px}
+.dk .mini svg{height:100%;width:auto;display:block}
+.dk .nm{flex:1;line-height:1.15}
+.dk .nm small{display:block;color:var(--muted);font-weight:600}
+.dk.sel{border-color:var(--gold);background:rgba(255,194,74,.12);box-shadow:0 0 0 2px rgba(255,194,74,.25)}
+.dk.done{opacity:.55}
+.dk.done .nm::after{content:" ✓";color:var(--green)}
+.dk:disabled{cursor:default}
+.setupHint{color:var(--muted);font-weight:600;font-size:.9rem;margin-top:10px;line-height:1.45}
+.readyBox{margin-top:12px;padding:10px;border-radius:12px;background:rgba(47,212,146,.1);border:1px solid rgba(47,212,146,.35);font-weight:700;text-align:center}
+
+/* panel bên */
+.pl{border:1px solid var(--line);border-radius:14px;padding:8px 10px;background:rgba(255,255,255,.03)}
+.pl+.pl{margin-top:8px}
+.pl.active{border-color:var(--green);box-shadow:0 0 0 2px rgba(47,212,146,.18)}
+.pl .nm{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1rem}
+.pl .nm .dot{width:12px;height:12px;border-radius:50%;flex:none}
+.pl .nm span.n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.pl .nm .sc{font-family:"Chakra Petch",monospace;font-size:1.25rem;color:var(--gold)}
+.pl .st{display:flex;justify-content:space-between;font-size:.84rem;font-weight:700;color:var(--muted);margin-top:4px;gap:6px}
+.pl .st b{color:var(--ink)}
+.fhead{font-weight:800;font-size:.9rem;color:var(--muted);margin:8px 0 2px}
+.fhead:first-child{margin-top:0}
+.fleetList{display:flex;flex-direction:column;gap:5px}
+.fl{display:flex;align-items:center;gap:8px;font-size:.86rem;font-weight:700}
+.fl .mini{width:62px;height:15px;flex:none;display:flex;align-items:center}
+.fl .mini svg{height:100%;width:auto;max-width:100%}
+.fl .nm2{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fl .pips{display:flex;gap:2px}
+.fl .pips i{width:8px;height:8px;border-radius:2px;background:rgba(170,225,255,.25)}
+.fl .pips i.h{background:var(--fire);box-shadow:0 0 4px var(--fire)}
+.fl.sunk .nm2{color:var(--muted);text-decoration:line-through}
+.fl.sunk .mini svg{filter:grayscale(1) brightness(.5)}
+.fl .tagS{font-size:.74rem;padding:1px 6px;border-radius:6px;background:rgba(255,77,94,.2);color:#ffb3bb}
+.fl .tagA{font-size:.74rem;padding:1px 6px;border-radius:6px;background:rgba(47,212,146,.15);color:#9ff0cd}
+.salvoBar{display:flex;align-items:center;gap:10px;margin-top:10px;width:100%;justify-content:center;flex-wrap:wrap;min-height:38px;font-weight:700;color:var(--muted);text-align:center}
+.salvoBar .pips{display:flex;gap:4px}
+.salvoBar .pips i{width:14px;height:14px;border-radius:50%;border:2px solid var(--red)}
+.salvoBar .pips i.on{background:var(--red);box-shadow:0 0 6px var(--red)}
+.log{max-height:230px;overflow:auto;font-size:.86rem;display:flex;flex-direction:column;gap:3px}
+.log div{padding:3px 0;border-bottom:1px dashed var(--line)}
+.log div.sys{color:var(--gold);font-weight:800}
+.log::-webkit-scrollbar{width:6px}
+.log::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+/* overlay / banner / toast */
+.overlay{position:fixed;inset:0;background:rgba(2,10,20,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;z-index:50}
+.modal{background:linear-gradient(180deg,#14385e,#0a1f38);border-radius:24px;padding:22px 20px;max-width:540px;width:100%;border:1px solid var(--line2);
+  box-shadow:0 24px 60px rgba(0,0,0,.55);max-height:92vh;overflow:auto;animation:pop .3s ease-out}
+@keyframes pop{from{transform:scale(.9);opacity:0}}
+.modal h2{margin:0 0 6px;font-weight:700;font-size:1.9rem;text-align:center;color:#bfeaff;letter-spacing:1px}
+.modal .tag{text-align:center}
+.modal .rules{font-size:.93rem;line-height:1.5}
+.modal .rules h3{margin:12px 0 4px;color:var(--cyan)}
+.modal .rules ul{margin:4px 0;padding-left:20px}
+.statTbl{width:100%;border-collapse:collapse;margin:8px 0;font-weight:700}
+.statTbl td,.statTbl th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center}
+.statTbl th{color:var(--muted);font-size:.85rem}
+.statTbl td:first-child{text-align:left;color:var(--muted)}
+#banner{position:fixed;left:50%;top:32%;z-index:45;pointer-events:none;transform:translate(-50%,-50%);text-align:center;opacity:0}
+#banner .b1{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:clamp(2rem,7vw,3.6rem);letter-spacing:3px;color:#fff;
+  text-shadow:0 0 18px rgba(255,120,40,.9),0 4px 0 rgba(0,0,0,.4);white-space:nowrap}
+#banner .b2{font-weight:800;font-size:1.1rem;color:#ffe2c4;margin-top:4px;text-shadow:0 2px 6px rgba(0,0,0,.7)}
+#banner.bad .b1{text-shadow:0 0 18px rgba(255,77,94,.95),0 4px 0 rgba(0,0,0,.4)}
+#banner.show{animation:bannerIn 2.3s ease-out both}
+@keyframes bannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(2.2)}12%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}100%{opacity:0;transform:translate(-50%,-60%) scale(1.05)}}
+.toast{
+  position:fixed;left:50%;bottom:20px;transform:translate(-50%,40px);opacity:0;background:#e6f1ff;color:#04213a;
+  padding:10px 16px;border-radius:12px;font-weight:800;transition:.25s;z-index:60;max-width:calc(100vw - 32px);text-align:center;pointer-events:none;
+}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.iconBtn{width:38px;height:34px;padding:0;font-size:1.1rem}
+
+@media (min-width:1000px){
+  :root{--cs:max(28px,min(46px,calc((100vw - 580px)/20),calc((100vh - 250px)/10)))}
+}
+@media (max-width:999px){
+  .layout{grid-template-columns:1fr}
+  .setupGrid{grid-template-columns:1fr;justify-items:center}
+  .setupGrid .dockPanel{width:100%;max-width:520px}
+  .bframe.big{--c:var(--cs)}
+  #frameM{--c:calc(var(--cs)*.8)}
+}
+@media (max-width:600px){
+  #game{padding:8px 16px 110px}
+  .panel{padding:10px}
+  header .title{font-size:1.25rem}
+  .boardPanel{width:100%}
+  .dock{display:grid;grid-template-columns:1fr 1fr}
+  .dk{padding:6px 8px;gap:6px;font-size:.86rem}
+  .dk .mini{height:15px}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gHull" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3cfdb"/><stop offset=".45" stop-color="#8b9aaa"/><stop offset="1" stop-color="#56636f"/></linearGradient>
+    <linearGradient id="gDeck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9b6c3"/><stop offset="1" stop-color="#7a8895"/></linearGradient>
+    <linearGradient id="gSub" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a6a78"/><stop offset=".5" stop-color="#36424e"/><stop offset="1" stop-color="#1c252e"/></linearGradient>
+    <linearGradient id="gCv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#66707b"/><stop offset="1" stop-color="#424a53"/></linearGradient>
+    <radialGradient id="gTur" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#d7e0e8"/><stop offset="1" stop-color="#6a7885"/></radialGradient>
+    <linearGradient id="gSup" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfe6ec"/><stop offset="1" stop-color="#9aa7b4"/></linearGradient>
+  </defs>
+</svg>
+<div id="seaDeco"><svg viewBox="0 0 2880 110" preserveAspectRatio="none">
+  <path class="w1" fill="#0c3a63" d="M0 50 Q180 20 360 50 T720 50 T1080 50 T1440 50 T1800 50 T2160 50 T2520 50 T2880 50 V110 H0Z"/>
+  <path class="w2" fill="#0a2d4f" d="M0 70 Q240 45 480 70 T960 70 T1440 70 T1920 70 T2400 70 T2880 70 V110 H0Z"/>
+</svg></div>
+
+<!-- ============ LOBBY ============ -->
+<section id="lobby">
+  <div class="lobby-card">
+    <div id="lobbyMain">
+      <div class="hero"><div class="radarC"><span class="blip" style="left:28%;top:30%"></span><span class="blip" style="left:68%;top:58%;animation-delay:-1.6s"></span></div><div class="heroShip" id="heroShip"></div></div>
+      <h1>HẢI CHIẾN</h1>
+      <p class="tag">Bắn tàu · Battleship · 2 người</p>
+      <label for="nameInput">Tên chỉ huy</label>
+      <input id="nameInput" maxlength="16" placeholder="VD: Hoàng" autocomplete="off">
+      <details class="opts" id="optsBox">
+        <summary>⚙️ Tùy chọn ván chơi</summary>
+        <label for="modeSel">Luật bắn</label>
+        <select id="modeSel">
+          <option value="classic">Cổ điển: mỗi lượt 1 phát</option>
+          <option value="chain">Trúng thì được bắn tiếp</option>
+          <option value="salvo">Salvo: số phát = số tàu còn nổi</option>
+        </select>
+        <label class="opt"><input type="checkbox" id="touchChk"> Tàu không được đặt sát nhau</label>
+        <label for="diffSel">Độ khó của máy</label>
+        <select id="diffSel">
+          <option value="easy">Dễ: tân binh</option>
+          <option value="normal" selected>Vừa: sĩ quan</option>
+          <option value="hard">Khó: đô đốc</option>
+        </select>
+      </details>
+      <div class="row"><button class="btn" id="createBtn">Tạo phòng</button></div>
+      <div class="or">hoặc vào phòng của bạn bè</div>
+      <label for="codeInput">Mã phòng</label>
+      <input id="codeInput" maxlength="5" placeholder="ABCDE" autocomplete="off">
+      <div class="row"><button class="btn green" id="joinBtn">Vào phòng</button></div>
+      <div class="or">hoặc</div>
+      <div class="row"><button class="btn gold" id="botBtn">Chơi với máy</button></div>
+      <div class="row"><button class="btn ghost" id="rulesBtn0">Xem luật chơi</button></div>
+      <div class="msg" id="lobbyMsg"></div>
+    </div>
+    <div id="lobbyWait" class="waiting hidden">
+      <div class="hero" style="height:110px"><div class="radarC" style="width:100px;height:100px;margin:-50px 0 0 -50px"></div></div>
+      <h2 style="margin:6px 0 0" class="chakra">Phòng đã tạo!</h2>
+      <p class="tag">Gửi mã này cho bạn bè</p>
+      <div class="code" id="waitCode">-----</div>
+      <div class="link" id="waitLink"></div>
+      <div class="small" id="waitOpts"></div>
+      <div class="row"><button class="btn green" id="copyBtn">Sao chép link</button></div>
+      <p class="tag" style="margin-top:16px">Đang chờ đối thủ<span class="dots"></span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAME ============ -->
+<section id="game" class="hidden">
+  <header>
+    <span class="title">⚓ HẢI CHIẾN</span>
+    <span class="info" id="roomInfo"></span>
+    <span class="chip" id="modeChip"></span>
+    <span class="chip turnChip" id="turnChip"></span>
+    <span class="sp"></span>
+    <button class="btn ghost iconBtn" id="muteBtn" title="Bật/tắt âm thanh">🔊</button>
+    <button class="btn ghost" id="rulesBtn">Luật</button>
+  </header>
+  <div class="layout">
+    <main>
+      <div class="statusBar" id="statusBar"></div>
+      <div id="setupView" class="setupGrid">
+        <div class="panel boardPanel">
+          <div class="bhead">🛠️ Bố trí hạm đội <span class="sp"></span><span class="small" id="oppReady"></span></div>
+          <div id="hostS"></div>
+        </div>
+        <div class="panel dockPanel">
+          <div class="ptitle">🚢 Tàu của bạn</div>
+          <div class="dock" id="dock"></div>
+          <div class="row">
+            <button class="btn ghost" id="rotBtn">⟳ Xoay (R)</button>
+            <button class="btn ghost" id="randBtn">🎲 Ngẫu nhiên</button>
+          </div>
+          <div class="row" style="margin-top:8px"><button class="btn ghost" id="clearBtn">🧹 Gỡ hết</button></div>
+          <div class="row"><button class="btn green" id="readyBtn">✅ Sẵn sàng chiến đấu</button></div>
+          <div class="setupHint" id="setupHint"></div>
+        </div>
+      </div>
+      <div id="playView" class="boards hidden">
+        <div class="panel boardPanel">
+          <div class="bhead">🎯 Vùng biển địch <span class="sp"></span><span class="small" id="enemyInfo"></span></div>
+          <div id="hostE"></div>
+          <div class="salvoBar" id="salvoBar"></div>
+        </div>
+        <div class="panel boardPanel">
+          <div class="bhead">⚓ Hạm đội của bạn <span class="sp"></span><span class="small" id="myInfo"></span></div>
+          <div id="hostM"></div>
+        </div>
+      </div>
+    </main>
+    <aside>
+      <div class="panel">
+        <div class="ptitle">👥 Chỉ huy</div>
+        <div id="players"></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">🛳️ Tình trạng hạm đội</div>
+        <div id="fleets"></div>
+        <div class="row"><button class="btn ghost" id="resignBtn">🏳️ Đầu hàng</button></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">📜 Nhật ký hải trình</div>
+        <div class="log" id="log"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<div id="banner"><div class="b1"></div><div class="b2"></div></div>
+<div id="overlay" class="overlay hidden"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= RULES / ENGINE ================= */
+// Bàn 10×10, ô i = r*10+c (r=0 ở trên, hàng 1). Tàu {id,r,c,v}: v=1 là dọc (kéo xuống), v=0 là ngang (kéo sang phải).
+// shots[p][i]: phát bắn CỦA người p vào vùng biển đối thủ: 0 chưa bắn, 1 trượt, 2 trúng.
+const N=10;
+const SHIPS=[
+  {id:"cv",name:"Tàu sân bay",len:5},
+  {id:"bb",name:"Thiết giáp hạm",len:4},
+  {id:"ca",name:"Tuần dương hạm",len:3},
+  {id:"ss",name:"Tàu ngầm",len:3},
+  {id:"dd",name:"Khu trục hạm",len:2},
+];
+const SHIP_BY=Object.fromEntries(SHIPS.map(s=>[s.id,s]));
+const MODES={classic:"Cổ điển", chain:"Trúng bắn tiếp", salvo:"Salvo"};
+const DIFFS={easy:"Dễ", normal:"Vừa", hard:"Khó"};
+const COLS="ABCDEFGHIJ";
+const sq = i => COLS[i%N]+(((i/N)|0)+1);
+const range = n => Array.from({length:n},(_,i)=>i);
+function rnd(n){ const a=new Uint32Array(1); crypto.getRandomValues(a); return a[0]%n; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function shipCells(s){ const L=SHIP_BY[s.id].len; return range(L).map(k=> s.v ? (s.r+k)*N+s.c : s.r*N+s.c+k); }
+function nbr8(i){ const r=(i/N)|0, c=i%N, out=[];
+  for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){ if(!dr&&!dc) continue; const rr=r+dr, cc=c+dc; if(rr>=0&&rr<N&&cc>=0&&cc<N) out.push(rr*N+cc); }
+  return out; }
+function nbr4(i){ const r=(i/N)|0, c=i%N, out=[];
+  if(r>0) out.push(i-N); if(r<N-1) out.push(i+N); if(c>0) out.push(i-1); if(c<N-1) out.push(i+1); return out; }
+function inBoard(s){ const L=SHIP_BY[s.id].len; return s.r>=0&&s.c>=0&&(s.v ? s.r+L<=N&&s.c<N : s.c+L<=N&&s.r<N); }
+// grid: mảng 100 phần tử, giá trị = id tàu hoặc "" ; trả về lý do lỗi hoặc null
+function fitErr(grid,s,noTouch){
+  if(!inBoard(s)) return "Tàu nằm ngoài hải đồ.";
+  const cells=shipCells(s);
+  for(const i of cells) if(grid[i]) return "Trùng chỗ với tàu khác.";
+  if(noTouch) for(const i of cells) for(const j of nbr8(i)) if(grid[j]&&grid[j]!==s.id) return "Luật ván này: các tàu không được đặt sát nhau.";
+  return null;
+}
+function gridOf(fleet,skipId){ const g=Array(N*N).fill(""); for(const s of fleet) if(s.id!==skipId) for(const i of shipCells(s)) g[i]=s.id; return g; }
+function normFleet(fleet){
+  if(!Array.isArray(fleet)) return null;
+  const out=[];
+  for(const sd of SHIPS){
+    const f=fleet.find(x=>x&&x.id===sd.id);
+    if(!f||!Number.isInteger(f.r)||!Number.isInteger(f.c)) return null;
+    out.push({id:sd.id,r:f.r,c:f.c,v:f.v?1:0});
+  }
+  return out;
+}
+function fleetErr(fleet,noTouch){
+  const g=Array(N*N).fill("");
+  for(const s of fleet){ const e=fitErr(g,s,noTouch); if(e) return e; for(const i of shipCells(s)) g[i]=s.id; }
+  return null;
+}
+function randomFleet(noTouch){
+  for(;;){
+    const g=Array(N*N).fill(""), fl=[]; let ok=true;
+    for(const sd of SHIPS){
+      let placed=false;
+      for(let t=0;t<300&&!placed;t++){
+        const v=rnd(2), s={id:sd.id, v, r:rnd(v?N-sd.len+1:N), c:rnd(v?N:N-sd.len+1)};
+        if(!fitErr(g,s,noTouch)){ for(const i of shipCells(s)) g[i]=s.id; fl.push(s); placed=true; }
+      }
+      if(!placed){ ok=false; break; }
+    }
+    if(ok) return fl;
+  }
+}
+
+function newMatch(names, opts){
+  const st={names, bot:!!opts.bot, diff:opts.diff||"normal", mode:MODES[opts.mode]?opts.mode:"classic", noTouch:!!opts.noTouch,
+            log:[], moveNo:0, first:rnd(2), score:[0,0], game:0};
+  resetMatch(st); return st;
+}
+function resetMatch(st){
+  st.game++; st.phase="setup"; st.fleets=[null,null]; st.ready=[false,false];
+  st.shots=[Array(N*N).fill(0),Array(N*N).fill(0)]; st.sunk=[[],[]];
+  st.nShots=[0,0]; st.nHits=[0,0]; st.volleys=0;
+  st.turn=st.first; st.result=null; st.last=null;
+  st.log.push({sys:1,t:`— Ván ${st.game}: bố trí hạm đội —`});
+  if(st.bot){ st.fleets[1]=randomFleet(st.noTouch); st.ready[1]=true; st.log.push({t:`${st.names[1]} đã bố trí xong hạm đội.`}); }
+  st.moveNo++;
+}
+const afloat = (st,p) => SHIPS.length-st.sunk[p].length;
+function shotsNeeded(st,p){
+  if(st.mode!=="salvo") return 1;
+  return Math.min(afloat(st,p), st.shots[p].filter(x=>x===0).length);
+}
+function finish(st,w,reason){
+  st.phase="end"; st.result={winner:w, reason}; st.score[w]++;
+  st.log.push({sys:1,t: reason==="resign" ? `🏳️ ${st.names[1-w]} đầu hàng. ${st.names[w]} thắng!` : `🏆 ${st.names[w]} đánh chìm toàn bộ hạm đội đối phương!`});
+}
+
+function applyAction(st,p,a){
+  if(!a||typeof a!=="object") return "Hành động không hợp lệ.";
+  const o=1-p;
+  if(a.k==="rematch"){
+    if(st.phase!=="end") return "Ván chưa kết thúc.";
+    st.first=1-st.first; resetMatch(st); return null;
+  }
+  if(a.k==="resign"){
+    if(st.phase==="end") return "Ván đã kết thúc.";
+    finish(st,o,"resign"); st.moveNo++; return null;
+  }
+  if(st.phase==="setup"){
+    if(a.k==="place"){
+      const fl=normFleet(a.fleet); if(!fl) return "Cần đặt đủ 5 tàu.";
+      const e=fleetErr(fl,st.noTouch); if(e) return e;
+      st.fleets[p]=fl; st.ready[p]=true;
+      st.log.push({t:`${st.names[p]} đã bố trí xong hạm đội.`});
+      if(st.ready[0]&&st.ready[1]){
+        st.phase="play"; st.turn=st.first;
+        st.log.push({sys:1,t:`⚔️ Khai chiến! ${st.names[st.first]} nổ súng trước.`});
+      }
+      st.moveNo++; return null;
+    }
+    if(a.k==="unready"){
+      if(!st.ready[p]) return null;
+      st.ready[p]=false; st.log.push({t:`${st.names[p]} đang sắp xếp lại hạm đội…`}); st.moveNo++; return null;
+    }
+    return "Đang trong giai đoạn bố trí.";
+  }
+  if(st.phase!=="play") return "Ván đã kết thúc.";
+  if(a.k!=="fire") return "Hành động không hợp lệ.";
+  if(st.turn!==p) return "Chưa tới lượt bạn.";
+  const need=shotsNeeded(st,p), cells=a.cells;
+  if(!Array.isArray(cells)||cells.length!==need) return need>1?`Cần chọn đủ ${need} mục tiêu.`:"Chọn 1 ô để bắn.";
+  const seen=new Set();
+  for(const i of cells){
+    if(!Number.isInteger(i)||i<0||i>=N*N) return "Ô không hợp lệ.";
+    if(seen.has(i)) return "Trùng mục tiêu.";
+    if(st.shots[p][i]) return `Ô ${sq(i)} đã bắn rồi.`;
+    seen.add(i);
+  }
+  const g=gridOf(st.fleets[o]), res=[];
+  for(const i of cells){
+    const id=g[i];
+    st.shots[p][i]=id?2:1; st.nShots[p]++;
+    let sunk=null;
+    if(id){
+      st.nHits[p]++;
+      const sh=st.fleets[o].find(s=>s.id===id);
+      if(shipCells(sh).every(j=>st.shots[p][j]===2)){ st.sunk[o].push(id); sunk=id; }
+    }
+    res.push({i,hit:!!id,sunk});
+  }
+  const nh=res.filter(x=>x.hit).length, sunkNames=res.filter(x=>x.sunk).map(x=>SHIP_BY[x.sunk].name);
+  let txt;
+  if(res.length===1) txt=`🎯 ${st.names[p]} bắn ${sq(res[0].i)}: ${nh?"TRÚNG!":"trượt."}`;
+  else txt=`🎯 ${st.names[p]} bắn loạt ${res.length} phát (${res.map(x=>sq(x.i)).join(", ")}): ${nh?`trúng ${nh}!`:"trượt hết."}`;
+  if(sunkNames.length) txt+=` 💥 Đánh chìm ${sunkNames.join(", ")} của ${st.names[o]}!`;
+  st.moveNo++; st.volleys++;
+  st.last={p, seq:st.moveNo, shots:res, text:txt, kind: sunkNames.length?"sunk":nh?"hit":"miss"};
+  st.log.push({t:txt});
+  if(st.sunk[o].length===SHIPS.length) finish(st,p,"fleet");
+  else if(!(st.mode==="chain"&&nh)) st.turn=o;
+  return null;
+}
+
+function viewFor(st,p){
+  const o=1-p, ef=st.fleets[o]||[];
+  return {
+    me:p, names:st.names, bot:st.bot, diff:st.diff, mode:st.mode, noTouch:st.noTouch, game:st.game,
+    phase:st.phase, ready:st.ready, turn:st.turn, first:st.first, score:st.score,
+    myFleet:st.fleets[p],
+    enemyFleet: st.phase==="end" ? ef : ef.filter(s=>st.sunk[o].includes(s.id)),
+    mySunk:st.sunk[p], enemySunk:st.sunk[o],
+    myShots:st.shots[p], theirShots:st.shots[o],
+    nShots:st.nShots, nHits:st.nHits, volleys:st.volleys,
+    need: st.phase==="play"&&st.turn===p ? shotsNeeded(st,p) : 0,
+    log:st.log.slice(-80), last:st.last, moveNo:st.moveNo, result:st.result
+  };
+}
+
+/* ================= SHIP ART ================= */
+// Vẽ tàu nhìn từ trên xuống, mũi hướng sang phải. viewBox = len*100 × 100.
+function hullPath(W,y1,y2){
+  const m=(y1+y2)/2;
+  return `M12,${m} C12,${y1+5} 18,${y1} 36,${y1} L${W-110},${y1} C${W-48},${y1} ${W-16},${y1+14} ${W-5},${m} C${W-16},${y2-14} ${W-48},${y2} ${W-110},${y2} L36,${y2} C18,${y2} 12,${y2-5} 12,${m} Z`;
+}
+function turret(x,dir,s=1){
+  const L=36*s, bx=dir>0?x+8*s:x-8*s-L;
+  return `<g><rect x="${bx}" y="${46-3*s}" width="${L}" height="${3*s}" rx="1" fill="#4b5762"/><rect x="${bx}" y="${52}" width="${L}" height="${3*s}" rx="1" fill="#4b5762"/>
+    <circle cx="${x}" cy="50" r="${14*s}" fill="url(#gTur)" stroke="#55626e" stroke-width="2"/><circle cx="${x-3*s}" cy="${46}" r="${3*s}" fill="rgba(255,255,255,.45)"/></g>`;
+}
+function plane(x,y,s=1){
+  const p=(dx,dy)=>`${x+dx*s},${y+dy*s}`;
+  return `<path d="M${p(14,0)} L${p(4,-2)} L${p(0,-13)} L${p(-4,-13)} L${p(-3,-2)} L${p(-11,-2)} L${p(-13,-6)} L${p(-15,-6)} L${p(-14,0)} L${p(-15,6)} L${p(-13,6)} L${p(-11,2)} L${p(-3,2)} L${p(-4,13)} L${p(0,13)} L${p(4,2)} Z" fill="#c9d2da" stroke="#59636d" stroke-width="1"/>`;
+}
+function superstructure(x1,x2,funnelX){
+  return `<rect x="${x1}" y="35" width="${x2-x1}" height="30" rx="7" fill="url(#gSup)" stroke="#6f7c88" stroke-width="2"/>
+    <rect x="${x1+8}" y="41" width="${(x2-x1)*.45}" height="18" rx="4" fill="#aeb9c4"/>
+    <rect x="${x1+10}" y="44" width="10" height="4" rx="1" fill="#2b3a4a"/><rect x="${x1+10}" y="52" width="10" height="4" rx="1" fill="#2b3a4a"/>
+    ${funnelX?`<ellipse cx="${funnelX}" cy="50" rx="11" ry="8" fill="#3a434c" stroke="#252c33" stroke-width="2"/><ellipse cx="${funnelX}" cy="50" rx="6" ry="4" fill="#111"/>`:""}
+    <line x1="${x2-10}" y1="30" x2="${x2-10}" y2="70" stroke="#5b6873" stroke-width="2"/><circle cx="${x2-10}" cy="50" r="4" fill="#d6dee5" stroke="#5b6873"/>`;
+}
+function planks(W,y1,y2){
+  let s=""; for(let y=y1+8;y<y2-4;y+=8) s+=`<line x1="40" y1="${y}" x2="${W-60}" y2="${y}" stroke="rgba(0,0,0,.08)" stroke-width="1"/>`; return s;
+}
+function shipSVG(id){
+  const L=SHIP_BY[id].len, W=L*100;
+  let b="";
+  if(id==="ss"){
+    b=`<path d="M14,50 C14,32 40,30 70,30 L${W-80},30 C${W-30},30 ${W-8},42 ${W-6},50 C${W-8},58 ${W-30},70 ${W-80},70 L70,70 C40,70 14,68 14,50 Z" fill="url(#gSub)" stroke="#1a2229" stroke-width="2"/>
+      <path d="M40,50 L${W-40},50" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
+      <path d="M6,40 L20,44 L20,56 L6,60 Z" fill="#27313a"/>
+      <rect x="${W*0.52}" y="41" width="56" height="18" rx="9" fill="#26303a" stroke="#141a20" stroke-width="2"/>
+      <rect x="${W*0.52+8}" y="44" width="20" height="5" rx="2" fill="#5d6b78"/>
+      <line x1="${W*0.52+40}" y1="38" x2="${W*0.52+40}" y2="62" stroke="#9aa6b2" stroke-width="2"/>
+      <circle cx="${W*0.3}" cy="50" r="4" fill="#4c5a67"/><circle cx="${W*0.78}" cy="50" r="4" fill="#4c5a67"/>`;
+  } else if(id==="cv"){
+    b=`<path d="${hullPath(W,12,88)}" fill="url(#gHull)" stroke="#4a5560" stroke-width="2"/>
+      <path d="M26,20 L${W-70},18 L${W-26},34 L${W-26},66 L${W-70},82 L26,80 Z" fill="url(#gCv)"/>
+      <path d="M40,74 L${W-110},28" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-dasharray="14 10"/>
+      <path d="M40,50 L${W-40},50" stroke="rgba(255,255,255,.7)" stroke-width="2.5" stroke-dasharray="18 12"/>
+      <path d="M26,22 L${W-70},20 M26,78 L${W-70},80" stroke="#ffcc3a" stroke-width="2"/>
+      <rect x="${W*0.6}" y="8" width="70" height="16" rx="4" fill="url(#gSup)" stroke="#6f7c88" stroke-width="2"/>
+      <rect x="${W*0.6+10}" y="11" width="20" height="9" rx="2" fill="#2b3a4a"/><circle cx="${W*0.6+50}" cy="16" r="5" fill="#3a434c"/>
+      <rect x="120" y="58" width="22" height="22" fill="rgba(0,0,0,.25)"/><rect x="${W*0.45}" y="20" width="22" height="18" fill="rgba(0,0,0,.2)"/>
+      ${plane(90,36)}${plane(150,36)}${plane(210,62,.9)}${plane(W-150,58)}${plane(W*0.48,64,.9)}`;
+  } else {
+    b=`<path d="${hullPath(W,18,82)}" fill="url(#gHull)" stroke="#4a5560" stroke-width="2"/>
+      <path d="${hullPath(W,26,74).replace(/^M12/,"M22")}" fill="url(#gDeck)" opacity=".9"/>${planks(W,26,74)}`;
+    if(id==="bb") b+=superstructure(140,240,205)+turret(W-90,1)+turret(W-150,1,.9)+turret(78,-1);
+    if(id==="ca") b+=superstructure(105,175,150)+turret(W-80,1,.9)+turret(62,-1,.9);
+    if(id==="dd") b+=superstructure(62,112,92)+turret(W-58,1,.8)+`<rect x="26" y="46" width="22" height="8" rx="3" fill="#56636f"/>`;
+  }
+  return `<svg viewBox="0 0 ${W} 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">${b}</svg>`;
+}
+
+/* ================= BOT ================= */
+// Máy chỉ dùng thông tin công khai: phát bắn của chính nó + vị trí các tàu đã chìm.
+function botFire(st,p){
+  const o=1-p, sh=st.shots[p], need=shotsNeeded(st,p), diff=st.diff||"normal";
+  const sunkCells=new Set();
+  for(const s of st.fleets[o]) if(st.sunk[o].includes(s.id)) for(const i of shipCells(s)) sunkCells.add(i);
+  const blocked=new Uint8Array(N*N);
+  for(let i=0;i<N*N;i++) if(sh[i]===1||sunkCells.has(i)) blocked[i]=1;
+  if(st.noTouch&&diff!=="easy") for(const i of sunkCells) for(const j of nbr8(i)) blocked[j]=1;
+  const U=range(N*N).filter(i=>sh[i]===2&&!sunkCells.has(i));
+  const lens=SHIPS.filter(s=>!st.sunk[o].includes(s.id)).map(s=>s.len);
+  const picks=[], excl=new Set();
+  const open = i => sh[i]===0&&!excl.has(i)&&(diff==="easy"||!blocked[i]);
+  const any = () => { const c=range(N*N).filter(open); return c.length?c[rnd(c.length)]:-1; };
+  const pickFrom = c => c.length?c[rnd(c.length)]:-1;
+  for(let k=0;k<need;k++){
+    let i=-1;
+    if(diff==="easy"){
+      if(U.length&&Math.random()<0.65) i=pickFrom([...new Set(U.flatMap(nbr4))].filter(open));
+      if(i<0) i=any();
+    } else if(diff==="normal"){
+      if(U.length){
+        const set=new Set(U), cand=[];
+        for(const u of U) for(const [d,ok] of [[1,x=>x%N!==N-1],[N,()=>true]]){
+          // hai phát trúng thẳng hàng: bắn nối dài hai đầu
+          if(!(set.has(u+d)&&ok(u))) continue;
+          let a=u; while(set.has(a-d)&&(d===N||a%N!==0)) a-=d;
+          let b=u; while(set.has(b+d)&&(d===N||b%N!==N-1)) b+=d;
+          const ea=a-d, eb=b+d;
+          if(ea>=0&&(d===N||a%N!==0)&&open(ea)) cand.push(ea);
+          if(eb<N*N&&(d===N||b%N!==N-1)&&open(eb)) cand.push(eb);
+        }
+        i=pickFrom(cand);
+        if(i<0) i=pickFrom([...new Set(U.flatMap(nbr4))].filter(open));
+      }
+      if(i<0){ const minL=Math.min(...lens); i=pickFrom(range(N*N).filter(j=>open(j)&&(((j/N)|0)+j%N)%minL===0)); }
+      if(i<0) i=any();
+    } else {
+      // Khó: bản đồ mật độ xác suất trên mọi cách đặt tàu còn có thể
+      const D=new Float64Array(N*N), hitSet=new Set(U);
+      for(const L of lens) for(const v of [0,1]) for(let r=0;r<(v?N-L+1:N);r++) for(let c=0;c<(v?N:N-L+1);c++){
+        let ok=true, kh=0;
+        for(let t=0;t<L;t++){
+          const j=v?(r+t)*N+c:r*N+c+t;
+          if(blocked[j]||excl.has(j)){ ok=false; break; }
+          if(hitSet.has(j)) kh++;
+        }
+        if(!ok) continue;
+        const w = U.length ? (kh ? Math.pow(40,kh) : 0.02) : 1;
+        for(let t=0;t<L;t++){ const j=v?(r+t)*N+c:r*N+c+t; if(sh[j]===0) D[j]+=w; }
+      }
+      let best=-1, bv=0;
+      for(let j=0;j<N*N;j++){ if(!open(j)) continue; const val=D[j]*(1+Math.random()*0.05); if(val>bv){ bv=val; best=j; } }
+      i = best>=0 ? best : any();
+    }
+    if(i<0) break;
+    picks.push(i); excl.add(i);
+  }
+  return picks;
+}
+
+let botTimer=null, botKey="";
+function maybeBot(){
+  if(!state||!state.bot) return;
+  const st=state, key=`${st.moveNo}|${st.phase}`;
+  if(key===botKey) return;
+  botKey=key; clearTimeout(botTimer);
+  if(st.phase==="play"&&st.turn===1){
+    const salvoWait = st.last&&st.last.p===0 ? 250*(st.last.shots.length-1) : 0;
+    botTimer=setTimeout(()=>{
+      if(state.phase!=="play"||state.turn!==1) return;
+      const err=applyAction(state,1,{k:"fire",cells:botFire(state,1)});
+      if(err) console.warn("bot:",err);
+      broadcast();
+    }, 1150+salvoWait+Math.random()*500);
+  }
+}
+
+/* ================= NETWORK ================= */
+const PREFIX="haichien-vh-";
+let peer=null, conn=null, guestConn=null, isHost=false, myName="", guestName="", roomCode="", state=null, view=null, joinTimer=null, roomOpts=null;
+
+const $ = id => document.getElementById(id);
+function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("show"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2600); }
+function lobbyMsg(t){ $("lobbyMsg").textContent=t||""; }
+function genCode(){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s=""; const r=new Uint32Array(5); crypto.getRandomValues(r); for(const x of r) s+=A[x%A.length]; return s; }
+function roomLink(){ return location.origin+location.pathname+"?room="+roomCode; }
+function getName(){
+  const n=$("nameInput").value.trim();
+  if(!n){ lobbyMsg("Nhập tên chỉ huy trước đã nhé ⚓"); $("nameInput").focus(); return null; }
+  try{ localStorage.setItem("haichien-name",n); }catch(e){}
+  return n;
+}
+function readOpts(){
+  const o={mode:$("modeSel").value, noTouch:$("touchChk").checked, diff:$("diffSel").value};
+  try{ localStorage.setItem("haichien-opts",JSON.stringify(o)); }catch(e){}
+  return o;
+}
+function optsText(o,bot){ return `Luật: ${MODES[o.mode]}${o.noTouch?" · tàu không sát nhau":""}${bot?` · máy ${DIFFS[o.diff]}`:""}`; }
+function lockLobby(b){ $("createBtn").disabled=b; $("joinBtn").disabled=b; $("botBtn").disabled=b; }
+
+function playBot(){
+  const n=getName(); if(!n) return;
+  myName=n; isHost=true; roomCode="";
+  state=newMatch([myName,"Máy"], {...readOpts(), bot:true});
+  startGameUI(); broadcast();
+}
+function createRoom(){
+  const n=getName(); if(!n) return;
+  if(typeof Peer==="undefined"){ lobbyMsg("Không tải được thư viện kết nối, kiểm tra mạng."); return; }
+  myName=n; isHost=true; lockLobby(true); lobbyMsg(""); roomOpts=readOpts();
+  roomCode=genCode();
+  peer=new Peer(PREFIX+roomCode);
+  peer.on("open",()=>{
+    $("lobbyMain").classList.add("hidden"); $("lobbyWait").classList.remove("hidden");
+    $("waitCode").textContent=roomCode; $("waitLink").textContent=roomLink(); $("waitOpts").textContent=optsText(roomOpts,false);
+    history.replaceState(null,"","?room="+roomCode+"&host=1");
+  });
+  peer.on("connection", onGuestConn);
+  peer.on("disconnected",()=>{ if(!peer.destroyed) peer.reconnect(); });
+  peer.on("error",e=>{
+    if(e.type==="unavailable-id"){ peer.destroy(); isHost=false; createRoom(); return; }
+    if(e.type==="peer-unavailable") return;
+    console.warn(e); toast("Lỗi kết nối: "+e.type); lockLobby(false);
+  });
+}
+function onGuestConn(c){
+  c.on("data", msg=>{
+    if(!msg||typeof msg!=="object") return;
+    if(msg.t==="hello"){
+      if(guestConn && guestConn!==c && guestConn.open){ c.send({t:"full"}); setTimeout(()=>c.close(),300); return; }
+      guestConn=c; guestName=String(msg.name||"Khách").slice(0,16);
+      if(!state){ state=newMatch([myName,guestName], roomOpts||{}); startGameUI(); }
+      else { state.names[1]=guestName; state.log.push({t:`${guestName} đã vào lại phòng.`}); }
+      broadcast();
+    } else if(msg.t==="act" && c===guestConn){
+      const err=applyAction(state,1,msg.a||{});
+      if(err) c.send({t:"err",msg:err});
+      broadcast();
+    }
+  });
+  c.on("close",()=>{ if(c===guestConn){ guestConn=null; if(state){ state.log.push({t:`${guestName} mất kết nối…`}); broadcast(); } } });
+}
+function broadcast(){
+  onView(viewFor(state,0));
+  if(guestConn && guestConn.open) guestConn.send({t:"state", view:viewFor(state,1)});
+  maybeBot();
+}
+function joinRoom(){
+  const n=getName(); if(!n) return;
+  const code=$("codeInput").value.trim().toUpperCase();
+  if(code.length!==5){ lobbyMsg("Mã phòng gồm 5 ký tự."); return; }
+  if(typeof Peer==="undefined"){ lobbyMsg("Không tải được thư viện kết nối, kiểm tra mạng."); return; }
+  myName=n; roomCode=code; isHost=false; lockLobby(true); lobbyMsg("Đang kết nối…");
+  $("lobbyMsg").style.color="var(--muted)";
+  if(peer) peer.destroy();
+  peer=new Peer();
+  peer.on("open",()=>connectToHost());
+  peer.on("error",e=>{
+    $("lobbyMsg").style.color="";
+    if(e.type==="peer-unavailable"){ clearTimeout(joinTimer); if(!view){ lobbyMsg("Không tìm thấy phòng "+roomCode+". Kiểm tra lại mã."); lockLobby(false); } else showDisconnected(); }
+    else { console.warn(e); lobbyMsg("Lỗi kết nối: "+e.type); lockLobby(false); }
+  });
+  peer.on("disconnected",()=>{ if(!peer.destroyed) peer.reconnect(); });
+}
+function connectToHost(){
+  conn=peer.connect(PREFIX+roomCode,{reliable:true});
+  clearTimeout(joinTimer);
+  joinTimer=setTimeout(()=>{ if(!view){ lobbyMsg("Kết nối quá lâu. Chủ phòng còn mở tab không?"); lockLobby(false); } },15000);
+  conn.on("open",()=>{ conn.send({t:"hello",name:myName}); });
+  conn.on("data",msg=>{
+    if(!msg) return;
+    if(msg.t==="state"){ clearTimeout(joinTimer); if($("game").classList.contains("hidden")) startGameUI(); if(overlayId==="dc") closeOverlay(); onView(msg.view); }
+    else if(msg.t==="err"){ busy=false; toast(msg.msg); }
+    else if(msg.t==="full"){ lobbyMsg("Phòng đã đủ 2 người."); lockLobby(false); }
+  });
+  conn.on("close",()=>{ if(view) showDisconnected(); });
+}
+function showDisconnected(){
+  openOverlay(`<h2>Mất liên lạc</h2><p class="tag">Không liên lạc được với chủ phòng.</p>
+    <div class="row"><button class="btn green" id="rejoinBtn">Kết nối lại</button></div>`, "dc");
+  $("rejoinBtn").onclick=()=>{ $("rejoinBtn").disabled=true; $("rejoinBtn").textContent="Đang thử…"; connectToHost(); };
+}
+let busy=false;
+function sendAction(a){
+  if(isHost){ const err=applyAction(state,0,a); if(err) toast(err); broadcast(); }
+  else if(conn && conn.open){ if(a.k==="fire") busy=true; conn.send({t:"act",a}); }
+  else toast("Chưa kết nối với chủ phòng.");
+}
+
+/* ================= UI ================= */
+let overlayId=null;
+function openOverlay(html,id){ $("modal").innerHTML=html; $("overlay").classList.remove("hidden"); overlayId=id; }
+function closeOverlay(){ $("overlay").classList.add("hidden"); overlayId=null; }
+$("overlay").addEventListener("click",e=>{ if(e.target.id==="overlay" && (overlayId==="rules"||overlayId==="resign")) closeOverlay(); });
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const SVG_CACHE={}; const svgOf = id => SVG_CACHE[id]||(SVG_CACHE[id]=shipSVG(id));
+
+function boardHTML(k){
+  const cells=range(N*N).map(i=>`<div class="cell" data-i="${i}" style="--x:${i%N};--y:${(i/N)|0}"></div>`).join("");
+  return `<div class="bframe ${k==="S"?"big setupB":""} ${k==="E"?"enemy":""}" id="frame${k}"><div class="bgrid">
+    <div></div><div class="colLab">${[...COLS].map(ch=>`<span>${ch}</span>`).join("")}</div>
+    <div class="rowLab">${range(N).map(r=>`<span>${r+1}</span>`).join("")}</div>
+    <div class="bstage"><div class="board">
+      <div class="water"></div><div class="caus"></div><div class="caus c2"></div>${k==="E"?`<div class="radar" id="radar"></div>`:""}<div class="gridl"></div>
+      <div class="layer" id="ships${k}"></div><div class="layer" id="marks${k}"></div><div class="layer" id="aim${k}"></div>
+      <div class="cells" id="cells${k}">${cells}</div>
+    </div><div class="fxl" id="fx${k}"></div></div>
+  </div></div>`;
+}
+function startGameUI(){
+  $("lobby").classList.add("hidden"); $("game").classList.remove("hidden");
+  $("roomInfo").innerHTML = roomCode ? `Phòng <b>${roomCode}</b>` : "Chơi với máy";
+  if(!isHost && roomCode) history.replaceState(null,"","?room="+roomCode);
+  $("hostS").innerHTML=boardHTML("S"); $("hostE").innerHTML=boardHTML("E"); $("hostM").innerHTML=boardHTML("M");
+  bindBoards();
+}
+
+// trạng thái cục bộ
+let draft=null, sel=null, rot=0, hovS=-1, hovE=-1, aims=[], pendTap=-1, lastSeq=null, seenGame=0, prevTurnMine=false, endShown=false, endTimer=null;
+const coarse=matchMedia("(pointer:coarse)").matches;
+function myTurn(){ return view&&view.phase==="play"&&view.turn===view.me; }
+
+function onView(v){
+  view=v; busy=false;
+  if(seenGame!==v.game){ seenGame=v.game; draft=null; sel=null; aims=[]; endShown=false; clearTimeout(endTimer); if(overlayId==="end") closeOverlay(); }
+  if(v.phase==="setup"&&!v.ready[v.me]&&!draft){ draft=v.myFleet?v.myFleet.map(s=>({...s})):[]; if(!sel) sel=nextUnplaced(); }
+  if(!myTurn()){ aims=[]; pendTap=-1; }
+  // hiệu ứng phát bắn mới
+  let fresh=new Set();
+  const seq=v.last?v.last.seq:0;
+  if(lastSeq===null) lastSeq=seq;               // view đầu tiên (vừa vào/vào lại): không phát hiệu ứng cũ
+  else if(seq!==lastSeq){
+    lastSeq=seq;
+    if(v.last){ fresh=new Set(v.last.shots.map(s=>s.i)); playShots(v.last); }
+  }
+  const mine=myTurn();
+  if(mine&&!prevTurnMine&&v.phase==="play") setTimeout(()=>sfx.ping(),v.last?900:200);
+  prevTurnMine=mine;
+  render(fresh);
+  if(v.phase==="end"&&!endShown){ endShown=true; endTimer=setTimeout(showEnd, v.result.reason==="resign"?300:1900); }
+  document.title = mine ? "● Lượt bạn · Hải Chiến" : "Hải Chiến";
+}
+
+function render(fresh){
+  const v=view, me=v.me, o=1-me, setup=v.phase==="setup";
+  $("setupView").classList.toggle("hidden",!setup);
+  $("playView").classList.toggle("hidden",setup);
+  $("modeChip").textContent=MODES[v.mode]+(v.noTouch?" · không sát":"");
+  const tc=$("turnChip");
+  tc.textContent = setup ? "Bố trí" : v.phase==="end" ? "Kết thúc" : myTurn() ? "🎯 Lượt bạn bắn" : `${v.names[o]} đang ngắm…`;
+  tc.className="chip turnChip"+(v.phase==="play"?(myTurn()?" me":" them"):"");
+  renderStatus();
+  if(setup) renderSetup(); else renderPlay(fresh||new Set());
+  renderPlayers(); renderFleets();
+  $("resignBtn").disabled = v.phase==="end";
+  $("log").innerHTML = v.log.slice().reverse().map(l=>`<div class="${l.sys?"sys":""}">${esc(l.t)}</div>`).join("");
+}
+function renderStatus(){
+  const v=view, el=$("statusBar"); let t, cls="statusBar";
+  if(v.phase==="setup") t = v.ready[v.me] ? `✅ Hạm đội đã sẵn sàng. ${v.ready[1-v.me]?"":`Đang chờ ${esc(v.names[1-v.me])} bố trí…`}`
+                                      : "🛠️ Đặt 5 tàu lên hải đồ của bạn. Đối thủ sẽ không nhìn thấy.";
+  else if(v.last){ t=esc(v.last.text); cls+=" sb-"+v.last.kind; }
+  else t=`⚔️ ${esc(v.names[v.turn])} nổ súng trước.`;
+  el.className=cls; el.innerHTML=t;
+}
+
+/* ---- vẽ tàu & dấu ---- */
+function shipEl(s,extra){ const L=SHIP_BY[s.id].len; return `<div class="ship ${s.v?"v":""} ${extra||""}" style="--x:${s.c};--y:${s.r};--l:${L}">${svgOf(s.id)}</div>`; }
+function setHTML(el,h){ if(el._h!==h){ el.innerHTML=h; el._h=h; } }
+// đồng bộ dấu bắn theo khoá để không khởi động lại hoạt ảnh lửa
+function syncMarks(layer,want,fresh){
+  const m=layer._m||(layer._m=new Map());
+  for(const [i,rec] of m) if(want.get(i)!==rec.k){ rec.el.remove(); m.delete(i); }
+  for(const [i,k] of want){
+    if(m.has(i)) continue;
+    const el=document.createElement("div");
+    el.className=`mk ${k.split(":")[0]}${k.includes(":dead")?" dead":""}${fresh.has(i)?" fresh":""}`;
+    el.style.setProperty("--x",i%N); el.style.setProperty("--y",(i/N)|0);
+    el.innerHTML = k.startsWith("hit") ? `<i class="gl"></i><i class="f"></i><i class="f b"></i><i class="f c"></i><i class="sm"></i><i class="sm b"></i>` : `<i></i>`;
+    layer.appendChild(el); m.set(i,{el,k});
+  }
+}
+function marksFor(shots){
+  const w=new Map();
+  shots.forEach((x,i)=>{ if(x===1) w.set(i,"miss"); else if(x===2) w.set(i,"hit"); });
+  return w;
+}
+
+/* ---- bố trí ---- */
+let grabOff=0;
+function nextUnplaced(){ const s=SHIPS.find(s=>!draft||!draft.some(d=>d.id===s.id)); return s?s.id:null; }
+function ghostFor(i){
+  if(!sel||i<0) return null;
+  const L=SHIP_BY[sel].len;
+  let r=((i/N)|0)-(rot?grabOff:0), c=i%N-(rot?0:grabOff);
+  r=Math.max(0,Math.min(r,rot?N-L:N-1)); c=Math.max(0,Math.min(c,rot?N-1:N-L));
+  const s={id:sel,r,c,v:rot};
+  return {s, err:fitErr(gridOf(draft,sel),s,view.noTouch)};
+}
+function renderSetup(){
+  const v=view, ready=v.ready[v.me], fl=ready?(v.myFleet||[]):draft;
+  renderSetupBoard();
+  $("dock").innerHTML=SHIPS.map(s=>{
+    const placed=fl.some(d=>d.id===s.id);
+    return `<button class="dk ${sel===s.id&&!ready?"sel":""} ${placed?"done":""}" data-id="${s.id}" ${ready?"disabled":""}>
+      <span class="mini" style="width:${s.len*22}px">${svgOf(s.id)}</span><span class="nm">${s.name}<small>${s.len} ô</small></span></button>`;
+  }).join("");
+  for(const id of ["rotBtn","randBtn","clearBtn"]) $(id).disabled=ready;
+  const rb=$("readyBtn");
+  if(ready){ rb.textContent="↩️ Sắp xếp lại"; rb.className="btn ghost"; rb.disabled=false; }
+  else { rb.textContent="✅ Sẵn sàng chiến đấu"; rb.className="btn green"; rb.disabled=draft.length<SHIPS.length; }
+  const o=1-v.me;
+  $("oppReady").innerHTML = v.ready[o] ? `${esc(v.names[o])}: ✅ sẵn sàng` : `${esc(v.names[o])}: đang bố trí<span class="dots"></span>`;
+  $("setupHint").innerHTML = ready
+    ? `<div class="readyBox">Hạm đội đã vào vị trí! ${v.ready[o]?"":`Chờ ${esc(v.names[o])}…`}</div>`
+    : `${coarse?"Chạm":"Bấm"} tên tàu để chọn, rồi ${coarse?"chạm":"bấm"} lên hải đồ để thả. ${coarse?"Chạm":"Bấm"} vào tàu đã đặt để nhấc lên.
+       Xoay bằng nút <b>⟳</b>, phím <b>R</b>${coarse?"":" hoặc chuột phải"}.${v.noTouch?"<br>⚠️ Ván này các tàu <b>không được đặt sát nhau</b> (kể cả chéo).":""}`;
+}
+function renderSetupBoard(){
+  const v=view, ready=v.ready[v.me], fl=ready?(v.myFleet||[]):draft;
+  setHTML($("shipsS"), fl.map(s=>shipEl(s)).join(""));
+  let gh="";
+  if(!ready&&sel){
+    const g=ghostFor(hovS);
+    if(g) gh=shipEl(g.s,"ghostShip"+(g.err?" bad":""));
+  }
+  setHTML($("aimS"),gh);
+}
+
+/* ---- trận đấu ---- */
+function sunkCellsOf(fleet,ids){ const s=new Set(); for(const sh of fleet||[]) if(ids.includes(sh.id)) for(const i of shipCells(sh)) s.add(i); return s; }
+function renderPlay(fresh){
+  const v=view, me=v.me, o=1-me, mt=myTurn();
+  // vùng biển địch
+  setHTML($("shipsE"), v.enemyFleet.map(s=>shipEl(s, v.enemySunk.includes(s.id)?"sunk":"reveal")).join(""));
+  const eDead=sunkCellsOf(v.enemyFleet,v.enemySunk), wE=marksFor(v.myShots);
+  for(const i of eDead) if(wE.get(i)==="hit") wE.set(i,"hit:dead");
+  syncMarks($("marksE"),wE,fresh);
+  $("frameE").classList.toggle("glowMe",mt);
+  $("radar").classList.toggle("on",mt);
+  for(const el of $("cellsE").children) el.classList.toggle("can",mt&&!v.myShots[+el.dataset.i]);
+  // hạm đội của mình
+  setHTML($("shipsM"), (v.myFleet||[]).map(s=>shipEl(s, v.mySunk.includes(s.id)?"sunk":"")).join(""));
+  const mDead=sunkCellsOf(v.myFleet,v.mySunk), wM=marksFor(v.theirShots);
+  for(const i of mDead) if(wM.get(i)==="hit") wM.set(i,"hit:dead");
+  syncMarks($("marksM"),wM,fresh);
+  $("frameM").classList.toggle("glowThem",v.phase==="play"&&!mt);
+  $("enemyInfo").textContent=`Còn ${SHIPS.length-v.enemySunk.length}/${SHIPS.length} tàu`;
+  $("myInfo").textContent=`Còn ${SHIPS.length-v.mySunk.length}/${SHIPS.length} tàu`;
+  renderAim(); renderSalvoBar();
+}
+function renderAim(){
+  const v=view; if(!v||v.phase!=="play") { if($("aimE")) setHTML($("aimE"),""); return; }
+  const mt=myTurn(); let h="";
+  if(mt){
+    for(const i of aims) h+=`<div class="aimMk" style="--x:${i%N};--y:${(i/N)|0}"></div>`;
+    if(pendTap>=0) h+=`<div class="aimMk" style="--x:${pendTap%N};--y:${(pendTap/N)|0}"></div>`;
+    if(hovE>=0&&!coarse&&!v.myShots[hovE]&&!aims.includes(hovE)) h+=`<div class="aimMk hov" style="--x:${hovE%N};--y:${(hovE/N)|0}"></div>`;
+  }
+  setHTML($("aimE"),h);
+}
+function renderSalvoBar(){
+  const v=view, el=$("salvoBar");
+  if(v.phase==="end"){ el.innerHTML=`<span>Ván đã kết thúc.</span><button class="btn ghost" id="seeEnd">Xem kết quả</button>`; $("seeEnd").onclick=showEnd; return; }
+  if(!myTurn()){ el.innerHTML=`<span>⏳ ${esc(v.names[1-v.me])} đang ngắm bắn vào hạm đội của bạn<span class="dots"></span></span>`; return; }
+  if(v.mode==="salvo"){
+    el.innerHTML=`<span>Chọn ${v.need} mục tiêu</span><span class="pips">${range(v.need).map(k=>`<i class="${k<aims.length?"on":""}"></i>`).join("")}</span>
+      <button class="btn red" id="fireBtn" ${aims.length===v.need&&!busy?"":"disabled"}>🚀 Khai hỏa (${aims.length}/${v.need})</button>`;
+    $("fireBtn").onclick=()=>{ if(aims.length===v.need) fire(aims.slice()); };
+  } else if(coarse&&pendTap>=0){
+    el.innerHTML=`<span>Ngắm <b>${sq(pendTap)}</b>, chạm lần nữa để bắn</span><button class="btn red" id="fireBtn">🚀 Khai hỏa</button>`;
+    $("fireBtn").onclick=()=>{ const i=pendTap; pendTap=-1; fire([i]); };
+  } else el.innerHTML=`<span>🎯 ${coarse?"Chạm":"Bấm"} vào một ô trên vùng biển địch để khai hỏa${v.mode==="chain"?" (trúng thì được bắn tiếp)":""}</span>`;
+}
+
+function statLine(v,p){ const s=v.nShots[p], h=v.nHits[p]; return `<span>Bắn <b>${s}</b></span><span>Trúng <b>${h}</b></span><span>Chính xác <b>${s?Math.round(100*h/s):0}%</b></span>`; }
+function renderPlayers(){
+  const v=view, me=v.me;
+  $("players").innerHTML=[me,1-me].map(p=>{
+    const act=v.phase==="play"&&v.turn===p;
+    return `<div class="pl ${act?"active":""}">
+      <div class="nm"><span class="dot" style="background:var(--p${p===me?0:1})"></span><span class="n">${esc(v.names[p])}${p===me?" (bạn)":""}${v.result&&v.result.winner===p?" 🏆":""}</span><span class="sc" title="Số ván thắng">${v.score[p]}</span></div>
+      <div class="st">${statLine(v,p)}</div></div>`;
+  }).join("");
+}
+function renderFleets(){
+  const v=view, setup=v.phase==="setup";
+  const mine=setup?(v.ready[v.me]?v.myFleet:draft)||[]:v.myFleet||[];
+  const hitsOn=id=>{ const s=mine.find(x=>x.id===id); return s?shipCells(s).filter(i=>v.theirShots[i]===2).length:0; };
+  const row=(s,tag,pips)=>`<div class="fl ${tag==="s"?"sunk":""}"><span class="mini">${svgOf(s.id)}</span><span class="nm2">${s.name}</span>${pips||""}${
+    tag==="s"?`<span class="tagS">Đã chìm</span>`:tag==="a"?`<span class="tagA">Còn nổi</span>`:""}</div>`;
+  let h=`<div class="fhead">Địch · ${esc(v.names[1-v.me])}</div><div class="fleetList">${SHIPS.map(s=>row(s,setup?"":v.enemySunk.includes(s.id)?"s":"a")).join("")}</div>`;
+  h+=`<div class="fhead">Của bạn</div><div class="fleetList">${SHIPS.map(s=>{
+    const k=hitsOn(s.id), pips=`<span class="pips">${range(s.len).map(j=>`<i class="${j<k?"h":""}"></i>`).join("")}</span>`;
+    return row(s, v.mySunk.includes(s.id)?"s":"", pips);
+  }).join("")}</div>`;
+  $("fleets").innerHTML=h;
+}
+
+/* ---- hiệu ứng ---- */
+function fxAt(key,i,hit,big){
+  const layer=$("fx"+key); if(!layer) return;
+  const el=document.createElement("div");
+  el.className="fx"+(big?" big":"");
+  el.style.setProperty("--x",i%N); el.style.setProperty("--y",(i/N)|0);
+  let h=`<i class="shell"></i>`;
+  if(hit){
+    h+=`<i class="flash"></i><i class="ring"></i>`;
+    for(let k=0;k<(big?14:10);k++){ const a=Math.random()*Math.PI*2, d=(big?120:80)+Math.random()*(big?220:150);
+      h+=`<i class="deb ${k%3===0?"k":""}" style="--dx:${(Math.cos(a)*d).toFixed(0)}%;--dy:${(Math.sin(a)*d).toFixed(0)}%"></i>`; }
+  } else {
+    h+=`<i class="plume"></i><i class="ring w"></i><i class="ring w w2"></i>`;
+    for(let k=0;k<8;k++){ const dx=(Math.random()*2-1)*160, hh=100+Math.random()*160;
+      h+=`<i class="drop" style="--dx:${dx.toFixed(0)}%;--h:${hh.toFixed(0)}%"></i>`; }
+  }
+  el.innerHTML=h; layer.appendChild(el);
+  setTimeout(()=>el.remove(),1600);
+}
+function shake(id){ const el=$(id); if(!el) return; el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+function banner(t1,t2,bad){
+  const b=$("banner"); b.querySelector(".b1").textContent=t1; b.querySelector(".b2").textContent=t2||"";
+  b.className=bad?"bad":""; void b.offsetWidth; b.className="show"+(bad?" bad":"");
+}
+function playShots(last){
+  const v=view, atk=last.p===v.me, key=atk?"E":"M";
+  last.shots.forEach((s,k)=>{
+    setTimeout(()=>{
+      sfx.launch();
+      fxAt(key,s.i,s.hit,false);
+      setTimeout(()=>{ if(s.hit){ sfx.boom(false); if(!atk) shake("frameM"); } else sfx.splash(); },360);
+    }, k*250);
+  });
+  const sunk=last.shots.filter(s=>s.sunk), base=(last.shots.length-1)*250+520;
+  sunk.forEach((s,n)=>{
+    const fleet=atk?v.enemyFleet:v.myFleet, sh=(fleet||[]).find(x=>x.id===s.sunk);
+    setTimeout(()=>{
+      sfx.boom(true); shake(atk?"frameE":"frameM");
+      if(sh) shipCells(sh).forEach((i,k)=>setTimeout(()=>fxAt(key,i,true,true),k*90));
+      const nm=SHIP_BY[s.sunk].name;
+      banner(atk?"ĐÁNH CHÌM!":"TÀU BỊ CHÌM!", atk?`${nm} của ${v.names[1-v.me]}`:`${nm} của bạn`, !atk);
+    }, base+n*700);
+  });
+}
+
+/* ---- âm thanh (Web Audio, tự tổng hợp) ---- */
+const sfx=(()=>{
+  let ac=null, nb=null, muted=false;
+  try{ muted=localStorage.getItem("haichien-mute")==="1"; }catch(e){}
+  function ctx(){
+    if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)();
+      const len=ac.sampleRate*2; nb=ac.createBuffer(1,len,ac.sampleRate); const d=nb.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+    }catch(e){ return null; } }
+    if(ac.state==="suspended") ac.resume();
+    return ac;
+  }
+  function noise(t,dur,type,f0,f1,gain,q=1){
+    const a=ac, src=a.createBufferSource(), f=a.createBiquadFilter(), g=a.createGain();
+    src.buffer=nb; f.type=type; f.Q.value=q;
+    f.frequency.setValueAtTime(f0,t); f.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(gain,t+0.015); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    src.connect(f).connect(g).connect(a.destination); src.start(t,Math.random()*0.8); src.stop(t+dur+0.05);
+  }
+  function tone(t,dur,type,f0,f1,gain){
+    const a=ac, o=a.createOscillator(), g=a.createGain();
+    o.type=type; o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(gain,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t+dur+0.05);
+  }
+  const run = fn => (...args)=>{ if(muted) return; const a=ctx(); if(!a) return; try{ fn(a.currentTime,...args); }catch(e){} };
+  return {
+    unlock(){ if(!muted) ctx(); },
+    launch: run(t=>{ noise(t,.32,"bandpass",500,2600,.18,.8); tone(t,.16,"sine",170,55,.3); }),
+    boom: run((t,big)=>{ noise(t,big?1.7:.95,"lowpass",big?1000:1500,55,big?.95:.75); tone(t,big?1:.55,"sine",95,26,.8); if(big) noise(t+.25,1.4,"lowpass",400,40,.5); }),
+    splash: run(t=>{ noise(t,.6,"bandpass",1900,450,.32,.7); noise(t+.04,.45,"highpass",3200,1400,.1); }),
+    ping: run(t=>{ tone(t,1.1,"sine",1250,1190,.14); tone(t+.38,.8,"sine",1250,1210,.045); }),
+    click: run(t=>{ tone(t,.06,"triangle",720,520,.12); }),
+    place: run(t=>{ tone(t,.13,"triangle",300,150,.22); noise(t,.16,"lowpass",900,200,.14); }),
+    err: run(t=>{ tone(t,.15,"square",190,120,.06); }),
+    win: run(t=>{ [523,659,784,1047].forEach((f,k)=>tone(t+k*.14,.4,"triangle",f,f,.18)); }),
+    lose: run(t=>{ [392,330,262,196].forEach((f,k)=>tone(t+k*.2,.5,"triangle",f,f*.97,.15)); }),
+    get muted(){ return muted; },
+    set muted(b){ muted=b; try{ localStorage.setItem("haichien-mute",b?"1":"0"); }catch(e){} },
+  };
+})();
+
+/* ---- sự kiện ---- */
+function cellIdx(e){ const c=e.target.closest(".cell"); return c?+c.dataset.i:-1; }
+function bindBoards(){
+  const cS=$("cellsS"), cE=$("cellsE");
+  cS.addEventListener("pointermove",e=>{ if(e.pointerType==="touch") return; const i=cellIdx(e); if(i!==hovS){ hovS=i; if(view&&view.phase==="setup") renderSetupBoard(); } });
+  cS.addEventListener("pointerleave",()=>{ hovS=-1; if(view&&view.phase==="setup") renderSetupBoard(); });
+  cS.addEventListener("click",e=>{ const i=cellIdx(e); if(i>=0) setupClick(i); });
+  cS.addEventListener("contextmenu",e=>{ e.preventDefault(); const i=cellIdx(e); rotateAt(i); });
+  cE.addEventListener("pointermove",e=>{ if(e.pointerType==="touch") return; const i=cellIdx(e); if(i!==hovE){ hovE=i; renderAim(); } });
+  cE.addEventListener("pointerleave",()=>{ hovE=-1; renderAim(); });
+  cE.addEventListener("click",e=>{ const i=cellIdx(e); if(i>=0) fireClick(i); });
+}
+function setupClick(i){
+  const v=view; if(!v||v.phase!=="setup") return;
+  if(v.ready[v.me]){ toast("Bấm “Sắp xếp lại” nếu muốn đổi vị trí tàu."); return; }
+  const occ=draft.find(s=>shipCells(s).includes(i));
+  if(occ&&!sel){
+    draft=draft.filter(s=>s!==occ); sel=occ.id; rot=occ.v; grabOff=shipCells(occ).indexOf(i); hovS=i;
+    sfx.click(); render(); return;
+  }
+  if(!sel){ toast("Chọn một tàu trong danh sách trước."); return; }
+  if(hovS!==i) hovS=i;
+  const g=ghostFor(i);
+  if(g.err){ toast(g.err); sfx.err(); renderSetupBoard(); return; }
+  draft.push(g.s); sfx.place();
+  sel=nextUnplaced(); grabOff=0; if(coarse) hovS=-1;
+  render();
+}
+function rotateAt(i){
+  const v=view; if(!v||v.phase!=="setup"||v.ready[v.me]) return;
+  if(sel){ rot^=1; renderSetupBoard(); return; }
+  const occ=i>=0&&draft.find(s=>shipCells(s).includes(i));
+  if(!occ){ toast("Chọn hoặc trỏ vào một tàu để xoay."); return; }
+  const s={...occ,v:occ.v^1}, L=SHIP_BY[s.id].len;
+  if(s.v) s.r=Math.min(s.r,N-L); else s.c=Math.min(s.c,N-L);
+  const e=fitErr(gridOf(draft,occ.id),s,v.noTouch);
+  if(e){ toast("Không xoay được: "+e); sfx.err(); return; }
+  Object.assign(occ,s); sfx.click(); render();
+}
+function fire(cells){ busy=true; aims=[]; pendTap=-1; sendAction({k:"fire",cells}); }
+function fireClick(i){
+  const v=view; if(!v||v.phase!=="play") return;
+  if(!myTurn()){ toast("Chưa tới lượt bạn."); return; }
+  if(busy) return;
+  if(v.myShots[i]){ toast(`Ô ${sq(i)} đã bắn rồi.`); return; }
+  if(v.mode==="salvo"){
+    const k=aims.indexOf(i);
+    if(k>=0) aims.splice(k,1);
+    else if(aims.length>=v.need){ toast(`Loạt này chỉ có ${v.need} phát. Bỏ chọn một ô hoặc bấm Khai hỏa.`); return; }
+    else { aims.push(i); sfx.click(); }
+    renderAim(); renderSalvoBar(); return;
+  }
+  if(coarse&&pendTap!==i){ pendTap=i; sfx.click(); renderAim(); renderSalvoBar(); return; }
+  fire([i]);
+}
+$("dock").addEventListener("click",e=>{
+  const b=e.target.closest(".dk"); if(!b||!view||view.ready[view.me]) return;
+  const id=b.dataset.id, placed=draft.find(s=>s.id===id);
+  if(placed){ draft=draft.filter(s=>s!==placed); rot=placed.v; }
+  sel=id; grabOff=0; sfx.click(); render();
+});
+$("rotBtn").onclick=()=>{ if(sel){ rot^=1; renderSetupBoard(); toast(rot?"Tàu dọc ↕":"Tàu ngang ↔"); } else toast("Chọn một tàu trước rồi xoay."); };
+$("randBtn").onclick=()=>{ if(!view||view.ready[view.me]) return; draft=randomFleet(view.noTouch); sel=null; sfx.place(); render(); };
+$("clearBtn").onclick=()=>{ if(!view||view.ready[view.me]) return; draft=[]; sel=SHIPS[0].id; grabOff=0; render(); };
+$("readyBtn").onclick=()=>{
+  const v=view; if(!v||v.phase!=="setup") return;
+  if(v.ready[v.me]){ sendAction({k:"unready"}); return; }
+  if(draft.length<SHIPS.length){ toast("Cần đặt đủ 5 tàu."); return; }
+  sendAction({k:"place",fleet:draft});
+};
+document.addEventListener("keydown",e=>{
+  if(!view||e.target.tagName==="INPUT"||e.target.tagName==="SELECT") return;
+  if((e.key==="r"||e.key==="R")&&view.phase==="setup") rotateAt(hovS);
+  if(e.key==="Escape"){ if(aims.length||pendTap>=0){ aims=[]; pendTap=-1; renderAim(); renderSalvoBar(); } }
+  if(e.key==="Enter"&&view.mode==="salvo"&&myTurn()&&aims.length===view.need&&!busy) fire(aims.slice());
+});
+$("resignBtn").onclick=()=>{
+  if(!view||view.phase==="end") return;
+  openOverlay(`<h2>Đầu hàng?</h2><p class="tag">Ván này sẽ tính là bạn thua.</p>
+    <div class="row"><button class="btn red" id="yesResign">🏳️ Đầu hàng</button><button class="btn ghost" id="noResign">Chiến tiếp</button></div>`,"resign");
+  $("yesResign").onclick=()=>{ closeOverlay(); sendAction({k:"resign"}); };
+  $("noResign").onclick=closeOverlay;
+};
+$("muteBtn").onclick=()=>{ sfx.muted=!sfx.muted; $("muteBtn").textContent=sfx.muted?"🔇":"🔊"; if(!sfx.muted) sfx.click(); };
+document.addEventListener("pointerdown",()=>sfx.unlock(),{once:true});
+
+function showEnd(){
+  const v=view, r=v.result; if(!r) return;
+  const me=v.me, o=1-me, win=r.winner===me;
+  const title = win ? "🏆 CHIẾN THẮNG!" : "💀 THẤT BẠI";
+  const sub = r.reason==="resign" ? (win?`${esc(v.names[o])} đã đầu hàng.`:"Bạn đã đầu hàng.")
+            : win ? "Toàn bộ hạm đội địch đã chìm xuống đáy biển!" : `${esc(v.names[o])} đã đánh chìm cả hạm đội của bạn.`;
+  const acc=p=>v.nShots[p]?Math.round(100*v.nHits[p]/v.nShots[p])+"%":"–";
+  openOverlay(`
+    <h2>${title}</h2>
+    <p class="tag" style="margin:0 0 6px">${sub}</p>
+    <table class="statTbl"><tr><th></th><th>${esc(v.names[me])}</th><th>${esc(v.names[o])}</th></tr>
+      <tr><td>Phát bắn</td><td>${v.nShots[me]}</td><td>${v.nShots[o]}</td></tr>
+      <tr><td>Trúng</td><td>${v.nHits[me]}</td><td>${v.nHits[o]}</td></tr>
+      <tr><td>Chính xác</td><td>${acc(me)}</td><td>${acc(o)}</td></tr>
+      <tr><td>Tàu còn nổi</td><td>${SHIPS.length-v.mySunk.length}</td><td>${SHIPS.length-v.enemySunk.length}</td></tr>
+      <tr><td>Ván thắng</td><td>${v.score[me]}</td><td>${v.score[o]}</td></tr></table>
+    <div class="row">
+      <button class="btn green" id="againBtn">⚓ Ván mới</button>
+      <button class="btn ghost" id="viewBoardBtn">Xem hải đồ</button>
+    </div>`, "end");
+  $("againBtn").onclick=()=>sendAction({k:"rematch"});
+  $("viewBoardBtn").onclick=closeOverlay;
+  if(win) sfx.win(); else sfx.lose();
+}
+
+function showRules(){
+  openOverlay(`<h2>Luật chơi Hải Chiến</h2><div class="rules">
+    <p>Mỗi chỉ huy có một hải đồ 10×10 (cột A–J, hàng 1–10) và hạm đội 5 tàu. Ai <b>đánh chìm toàn bộ hạm đội đối phương</b> trước sẽ thắng.</p>
+    <h3>Hạm đội</h3>
+    <ul>${SHIPS.map(s=>`<li><b>${s.name}</b>: ${s.len} ô</li>`).join("")}</ul>
+    <h3>1 · Bố trí</h3>
+    <ul>
+      <li>Đặt cả 5 tàu theo hàng ngang hoặc dọc, không chồng lên nhau, không ra ngoài hải đồ. Đối thủ không nhìn thấy hải đồ của bạn.</li>
+      <li>Nếu bật tùy chọn <i>tàu không được đặt sát nhau</i>: giữa hai tàu phải có ít nhất 1 ô nước, kể cả theo đường chéo.</li>
+      <li>Bấm <b>Sẵn sàng</b> khi xong. Khi cả hai cùng sẵn sàng thì khai chiến; người bắn trước được bốc ngẫu nhiên và đổi lượt mỗi ván.</li>
+    </ul>
+    <h3>2 · Khai hỏa</h3>
+    <ul>
+      <li>Đến lượt, chọn một ô trên <b>vùng biển địch</b> để bắn. Trượt: cột nước trắng 💦. Trúng: tàu địch bốc cháy 🔥.</li>
+      <li>Khi mọi ô của một tàu đều bị bắn trúng, tàu đó <b>chìm</b> và lộ nguyên hình trên hải đồ địch.</li>
+    </ul>
+    <h3>Các luật bắn</h3>
+    <ul>
+      <li><b>Cổ điển</b>: mỗi lượt đúng 1 phát, rồi tới lượt đối thủ.</li>
+      <li><b>Trúng bắn tiếp</b>: bắn trúng thì được bắn tiếp, trượt mới mất lượt.</li>
+      <li><b>Salvo</b>: mỗi lượt bắn một loạt, số phát bằng số tàu bạn <b>còn nổi</b>. Chọn đủ mục tiêu rồi bấm <i>Khai hỏa</i>. Mất tàu là mất hỏa lực!</li>
+    </ul>
+    <h3>Mẹo điều khiển</h3>
+    <ul>
+      <li>Bố trí: bấm tên tàu → bấm lên hải đồ để thả; bấm vào tàu đã đặt để nhấc lên. Xoay bằng nút ⟳, phím R hoặc chuột phải.</li>
+      <li>Trên điện thoại: chạm một ô để ngắm, chạm lần nữa (hoặc nút Khai hỏa) để bắn.</li>
+    </ul>
+    </div><div class="row"><button class="btn green" id="closeRules">Đã rõ, thưa chỉ huy!</button></div>`, "rules");
+  $("closeRules").onclick=closeOverlay;
+}
+
+/* ================= BOOT ================= */
+$("createBtn").onclick=createRoom;
+$("joinBtn").onclick=joinRoom;
+$("botBtn").onclick=playBot;
+$("rulesBtn0").onclick=showRules;
+$("rulesBtn").onclick=()=>{ const prev=overlayId; showRules(); if(prev==="end") $("closeRules").onclick=showEnd; };
+$("copyBtn").onclick=()=>{ navigator.clipboard.writeText(roomLink()).then(()=>toast("Đã sao chép link!"),()=>toast("Không sao chép được, hãy copy thủ công.")); };
+$("codeInput").addEventListener("keydown",e=>{ if(e.key==="Enter") joinRoom(); });
+$("heroShip").innerHTML=svgOf("bb");
+$("muteBtn").textContent=sfx.muted?"🔇":"🔊";
+try{ const n=localStorage.getItem("haichien-name"); if(n) $("nameInput").value=n; }catch(e){}
+try{ const o=JSON.parse(localStorage.getItem("haichien-opts")||"null");
+  if(o){ if(MODES[o.mode]) $("modeSel").value=o.mode; $("touchChk").checked=!!o.noTouch; if(DIFFS[o.diff]) $("diffSel").value=o.diff; } }catch(e){}
+const qs=new URLSearchParams(location.search);
+if(qs.get("room") && !qs.get("host")) $("codeInput").value=qs.get("room").toUpperCase();
+</script>
+</body>
+</html>
